@@ -72,7 +72,9 @@ class Player {
 }
 
 
-
+class Entity {
+    
+}
 
 
 /*
@@ -120,7 +122,7 @@ class Engine {
 
         var enemySpot;
         // Keep looping until we find a free enemy spot at random
-        while (!enemySpot || this.enemies[enemySpot]) {
+        while (enemySpot===undefined || this.enemies[enemySpot]) {
             enemySpot = Math.floor(Math.random() * enemySpots);
         }
 
@@ -151,8 +153,9 @@ class Engine {
     It's also at this point that we will check for any collisions between the game entities
     Collisions will often indicate either a player death or an enemy kill
 
-    In order to allow the game objects to self-determine their behaviors, gameLoop will call the `update` method of each entity
-    To account for the fact that we don't always have 60 frames per second, gameLoop will send a time delta argument to `update`
+    In order to allow the game objects to self-determine their behaviors, gameLoop will call the `update` 
+    method of each entity To account for the fact that we don't always have 60 frames per second, gameLoop 
+    will send a time delta argument to `update`
     You should use this parameter to scale your update appropriately
      */
     gameLoop() {
@@ -180,7 +183,7 @@ class Engine {
         this.setupEnemies();
 
         // Check if player is dead
-        if (this.isPlayerDead()) {
+        if (this.isPlayerDead() === true){
             // If they are dead, then it's game over!
             this.ctx.font = 'bold 30px Impact';
             this.ctx.fillStyle = '#ffffff';
@@ -198,15 +201,29 @@ class Engine {
         }
     }
 
-    isPlayerDead() {
-        // TODO: fix this function!
-        return false;
+    isPlayerDead(){
+       for (var i = 0; i < this.enemies.length; i++) {
+                if (this.enemies[i]  &&
+                this.player.x === this.enemies[i].x
+                &&
+                this.enemies[i].y + ENEMY_HEIGHT - 40 > this.player.y
+                )
+                {
+                    return false;
+                 }
+            /*else*/ if( this.enemies[i] 
+                &&
+                this.player.x === this.enemies[i].x
+                &&
+                this.enemies[i].y + ENEMY_HEIGHT - 20 > this.player.y 
+            ){
+              return true; 
+            }
+       }
+       return false
     }
+    
 }
-
-
-
-
 
 // This section will start the game
 var gameEngine = new Engine(document.getElementById('app'));
