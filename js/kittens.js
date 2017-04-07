@@ -1,5 +1,5 @@
 // This sectin contains some game constants. It is not super interesting
-var GAME_WIDTH = 375;
+var GAME_WIDTH = 750;
 var GAME_HEIGHT = 500;
 
 var ENEMY_WIDTH = 75;
