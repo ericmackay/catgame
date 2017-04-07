@@ -12,6 +12,7 @@ var PLAYER_HEIGHT = 54;
 // These two constants keep us from using "magic numbers" in our code
 var LEFT_ARROW_CODE = 37;
 var RIGHT_ARROW_CODE = 39;
+var SPACE_BAR = 32;
 
 // These two constants allow us to DRY
 var MOVE_LEFT = 'left';
@@ -44,6 +45,7 @@ class Enemy extends Entity {
 
         // Each enemy should have a different speed
         this.speed = Math.random() / 2 + 0.25;
+        
     }
 
     update(timeDiff) {
@@ -81,9 +83,26 @@ The engine will try to draw your game at 60 frames per second using the requestA
 */
 class Engine {
     constructor(element) {
-        // Setup the player
+        
+        // Flag for state of player (dead or alive)
+        this.playerDead = true;
+        
+        // add event listener for movement and
+        // listen for space bar to restart game upon death.
+        document.addEventListener('keydown', e => {
+            if (e.keyCode === SPACE_BAR && this.playerDead){
+                this.start()
+            }
+            if (e.keyCode === LEFT_ARROW_CODE) {
+                this.player.move(MOVE_LEFT);
+            }
+            if (e.keyCode === RIGHT_ARROW_CODE) {
+                this.player.move(MOVE_RIGHT);
+            }
+        });
+       
         this.player = new Player();
-
+        
         // Setup enemies, making sure there are always three
         this.setupEnemies();
 
@@ -92,12 +111,28 @@ class Engine {
         canvas.width = GAME_WIDTH;
         canvas.height = GAME_HEIGHT;
         element.appendChild(canvas);
-
+        
         this.ctx = canvas.getContext('2d');
 
         // Since gameLoop will be called out of context, bind it once here.
         this.gameLoop = this.gameLoop.bind(this);
+        
     }
+    
+    start() {
+        // Setup the player
+        this.player = new Player();
+         // Flag for state of player (dead or alive)
+        this.playerDead = false;
+       
+        this.enemies = [];
+        this.setupEnemies();
+        
+        this.score = 0;
+        this.lastFrame = Date.now();
+        this.gameLoop();
+    }
+
 
     /*
      The game allows for 5 horizontal slots where an enemy can be present.
@@ -126,22 +161,17 @@ class Engine {
         this.enemies[enemySpot] = new Enemy(enemySpot * ENEMY_WIDTH);
     }
 
-    // This method kicks off the game
-    start() {
+    // Draw the canvas
+    loadGameBackground() {
         this.score = 0;
         this.lastFrame = Date.now();
-
-        // Listen for keyboard left/right and update the player
-        document.addEventListener('keydown', e => {
-            if (e.keyCode === LEFT_ARROW_CODE) {
-                this.player.move(MOVE_LEFT);
-            }
-            else if (e.keyCode === RIGHT_ARROW_CODE) {
-                this.player.move(MOVE_RIGHT);
-            }
-        });
-
-        this.gameLoop();
+        this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
+        this.player.render(this.ctx); // draw the player
+        this.ctx.textAlign = 'center';
+        this.ctx.font = 'bold 18px Verdana' ;
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillText( 'CAN I HAZ BURGERS', (GAME_WIDTH / 2), 250);
+        this.ctx.fillText('(press space to play)', (GAME_WIDTH / 2), 280);
     }
 
     /*
@@ -179,15 +209,22 @@ class Engine {
         });
         this.setupEnemies();
 
-        // Check if player is dead
+
+     // Check if player is dead
         if (this.isPlayerDead() === true){
             // If they are dead, then it's game over!
-            this.ctx.font = 'bold 30px Impact';
+            this.ctx.textAlign = 'center';
+            this.ctx.font = 'bold 40px Impact';
             this.ctx.fillStyle = '#ffffff';
-            this.ctx.fillText(this.score + ' GAME OVER', 5, 30);
+            this.ctx.fillText( 'GAME OVER', (GAME_WIDTH / 2), 250);
+            this.ctx.fillText(this.score, (GAME_WIDTH / 2), 295);
+            this.ctx.font = 'Normal 16px Verdana';
+            this.ctx.fillText('Hit Space to Restart', (GAME_WIDTH / 2), 325);
+            this.playerDead = true;
         }
         else {
             // If player is not dead, then draw the score
+            this.ctx.textAlign = 'left';
             this.ctx.font = 'bold 30px Impact';
             this.ctx.fillStyle = '#ffffff';
             this.ctx.fillText(this.score, 5, 30);
@@ -224,4 +261,4 @@ class Engine {
 
 // This section will start the game
 var gameEngine = new Engine(document.getElementById('app'));
-gameEngine.start();
+gameEngine.loadGameBackground()
