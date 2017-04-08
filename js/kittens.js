@@ -2,11 +2,16 @@
 var GAME_WIDTH = 750;
 var GAME_HEIGHT = 500;
 var GAME_CEILING = 0;
-var GAME_FLOOR = 500;
+var GAME_FLOOR = 446;
 
 var ENEMY_WIDTH = 75;
 var ENEMY_HEIGHT = 156;
 var MAX_ENEMIES = 5;
+
+var LIFE_WIDTH = 75;
+var LIFE_HEIGHT = 64;
+
+var MAX_POWERUPS = 1;
 
 var PLAYER_WIDTH = 75;
 var PLAYER_HEIGHT = 54;
@@ -16,6 +21,7 @@ var LEFT_ARROW_CODE = 37;
 var RIGHT_ARROW_CODE = 39;
 var UP_ARROW_CODE = 38;
 var DOWN_ARROW_CODE = 40;
+var ENTER_KEY = 13;
 var SPACE_BAR = 32;
 
 // These two constants allow us to DRY
@@ -26,7 +32,7 @@ var MOVE_DOWN = 'down';
 
 // Preload game images
 var images = {};
-['enemy.png', 'stars.png', 'player.png'].forEach(imgName => {
+['enemy.png', 'stars.png', 'player.png', 'heart.png'].forEach(imgName => {
     var img = document.createElement('img');
     img.src = 'images/' + imgName;
     images[imgName] = img;
@@ -68,6 +74,16 @@ class Player extends Entity{
         this.sprite = images['player.png'];
     }
 
+class Life extends Entity{
+    constructor() {
+        super();
+
+        this.x = 2 * LIFE_WIDTH;
+        this.y = GAME_HEIGHT - LIFE_HEIGHT - 10;
+        this.sprite = images['heart.png'];
+    }
+
+
     // This method is called by the game engine when left/right arrows are pressed
     move(direction) {
         if (direction === MOVE_LEFT && this.x > 0) {
@@ -80,7 +96,7 @@ class Player extends Entity{
             this.y = this.y - PLAYER_HEIGHT;
             console.log(this.y);
         }
-        else if (direction === MOVE_DOWN && this.y > GAME_FLOOR + PLAYER_HEIGHT) {
+        else if (direction === MOVE_DOWN && this.y < GAME_FLOOR - PLAYER_HEIGHT) {
             this.y = this.y + PLAYER_HEIGHT;
             console.log(this.y);
         }
@@ -101,9 +117,9 @@ class Engine {
         this.playerDead = true;
 
         // add event listener for movement and
-        // listen for space bar to restart game upon death.
+        // listen for ENTER_KEY to restart game upon death.
         document.addEventListener('keydown', e => {
-            if (e.keyCode === SPACE_BAR && this.playerDead){
+            if (e.keyCode === ENTER_KEY && this.playerDead){
                 this.start()
             }
             if (e.keyCode === LEFT_ARROW_CODE) {
@@ -147,6 +163,9 @@ class Engine {
           this.enemies = [];
           this.setupEnemies();
 
+          this.powerUps = [];
+          this.setupPowerUps();
+
           this.score = 0;
           this.lastFrame = Date.now();
           this.gameLoop();
@@ -165,6 +184,16 @@ class Engine {
         }
     }
 
+    setupPowerUps() {
+        if (!this.powerUps) {
+            this.powerUps = [];
+        }
+
+        while (this.powerUps.filter(e => !!e).length < MAX_POWERUPS) {
+            this.powerUps();
+        }
+    }
+
     // This method finds a random spot where there is no enemy, and puts one in there
     addEnemy() {
         var enemySpots = GAME_WIDTH / ENEMY_WIDTH;
@@ -177,17 +206,32 @@ class Engine {
 
         this.enemies[enemySpot] = new Enemy(enemySpot * ENEMY_WIDTH);
     }
+
+    // This method finds a random spot where there is no enemy, and puts one in there
+    addPowerUp() {
+        var powerUpSpots = GAME_WIDTH / ENEMY_WIDTH;
+
+        var powerUpSpot;
+        // Keep looping until we find a free enemy spot at random
+        while (powerUpSpot===undefined || this.powerUp[powerUpSpot]) {
+            powerUpSpot = Math.floor(Math.random() * powerUpSpot);
+        }
+
+        this.powerUP[powerUpSpot] = new PowerUp(powerUpSpot * LIFE_WIDTH);
+    }
+
+
         // Draw the canvas
-        loadGameBackground() {
-            this.score = 0;
-            this.lastFrame = Date.now();
-            this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
-            this.player.render(this.ctx); // draw the player
-            this.ctx.textAlign = 'center';
-            this.ctx.font = 'bold 18px Verdana' ;
-            this.ctx.fillStyle = '#ffffff';
-            this.ctx.fillText( 'CAN I HAZ BURGERS', (GAME_WIDTH / 2), 250);
-            this.ctx.fillText('(press space to play)', (GAME_WIDTH / 2), 280);
+    loadGameBackground() {
+        this.score = 0;
+        this.lastFrame = Date.now();
+        this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
+        this.player.render(this.ctx); // draw the player
+        this.ctx.textAlign = 'center';
+        this.ctx.font = 'bold 18px Verdana' ;
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillText( 'CAN I HAZ BURGERS', (GAME_WIDTH / 2), 250);
+        this.ctx.fillText('(press ENTER to play)', (GAME_WIDTH / 2), 280);
         }
 
     /*
@@ -216,6 +260,7 @@ class Engine {
         this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
         this.enemies.forEach(enemy => enemy.render(this.ctx)); // draw the enemies
         this.player.render(this.ctx); // draw the player
+        this.powerUp.forEach(powerup => powerUp.render(this.ctx))
 
         // Check if any enemies should die
         this.enemies.forEach((enemy, enemyIdx) => {
@@ -232,10 +277,11 @@ class Engine {
             this.ctx.textAlign = 'center';
             this.ctx.font = 'bold 40px Impact';
             this.ctx.fillStyle = '#ffffff';
-            this.ctx.fillText( 'GAME OVER', (GAME_WIDTH / 2), 250);
-            this.ctx.fillText(this.score, (GAME_WIDTH / 2), 295);
+            this.ctx.fillText( 'GAME OVER', GAME_WIDTH / 2, GAME_HEIGHT / 2);
+            this.ctx.font = 'bold 30px Impact';
+            this.ctx.fillText(this.score, GAME_WIDTH / 2, (GAME_HEIGHT / 2) + 40);
             this.ctx.font = 'Normal 16px Verdana';
-            this.ctx.fillText('Hit Space to Restart', (GAME_WIDTH / 2), 325);
+            this.ctx.fillText('Hit Enter to Restart', GAME_WIDTH / 2, (GAME_HEIGHT / 2) + 65);
             this.playerDead = true;
         }
         else {
