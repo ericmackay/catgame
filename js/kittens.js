@@ -1,6 +1,8 @@
 // This sectin contains some game constants. It is not super interesting
 var GAME_WIDTH = 750;
 var GAME_HEIGHT = 500;
+var GAME_CEILING = 0;
+var GAME_FLOOR = 500;
 
 var ENEMY_WIDTH = 75;
 var ENEMY_HEIGHT = 156;
@@ -12,11 +14,15 @@ var PLAYER_HEIGHT = 54;
 // These two constants keep us from using "magic numbers" in our code
 var LEFT_ARROW_CODE = 37;
 var RIGHT_ARROW_CODE = 39;
+var UP_ARROW_CODE = 38;
+var DOWN_ARROW_CODE = 40;
 var SPACE_BAR = 32;
 
 // These two constants allow us to DRY
 var MOVE_LEFT = 'left';
 var MOVE_RIGHT = 'right';
+var MOVE_UP = 'up';
+var MOVE_DOWN = 'down';
 
 // Preload game images
 var images = {};
@@ -70,7 +76,14 @@ class Player extends Entity{
         else if (direction === MOVE_RIGHT && this.x < GAME_WIDTH - PLAYER_WIDTH) {
             this.x = this.x + PLAYER_WIDTH;
         }
-
+        else if (direction === MOVE_UP && this.y > GAME_CEILING + PLAYER_HEIGHT) {
+            this.y = this.y - PLAYER_HEIGHT;
+            console.log(this.y);
+        }
+        else if (direction === MOVE_DOWN && this.y > GAME_FLOOR + PLAYER_HEIGHT) {
+            this.y = this.y + PLAYER_HEIGHT;
+            console.log(this.y);
+        }
     }
 
 }
@@ -98,6 +111,12 @@ class Engine {
             }
             if (e.keyCode === RIGHT_ARROW_CODE) {
                 this.player.move(MOVE_RIGHT);
+            }
+            if (e.keyCode === UP_ARROW_CODE) {
+                this.player.move(MOVE_UP);
+            }
+            if (e.keyCode === DOWN_ARROW_CODE) {
+                this.player.move(MOVE_DOWN);
             }
         });
 
@@ -188,7 +207,7 @@ class Engine {
         var timeDiff = currentFrame - this.lastFrame;
 
         // Increase the score!
-        this.score += timeDiff;
+        this.score += Math.round(timeDiff * .1) ;
 
         // Call update on all enemies
         this.enemies.forEach(enemy => enemy.update(timeDiff));
