@@ -11,8 +11,6 @@ var MAX_ENEMIES = 5;
 var LIFE_WIDTH = 75;
 var LIFE_HEIGHT = 64;
 
-var MAX_POWERUPS = 1;
-
 var PLAYER_WIDTH = 75;
 var PLAYER_HEIGHT = 54;
 
@@ -74,16 +72,6 @@ class Player extends Entity{
         this.sprite = images['player.png'];
     }
 
-class Life extends Entity{
-    constructor() {
-        super();
-
-        this.x = 2 * LIFE_WIDTH;
-        this.y = GAME_HEIGHT - LIFE_HEIGHT - 10;
-        this.sprite = images['heart.png'];
-    }
-
-
     // This method is called by the game engine when left/right arrows are pressed
     move(direction) {
         if (direction === MOVE_LEFT && this.x > 0) {
@@ -103,7 +91,6 @@ class Life extends Entity{
     }
 
 }
-
 
 /*
 This section is a tiny game engine.
@@ -163,9 +150,6 @@ class Engine {
           this.enemies = [];
           this.setupEnemies();
 
-          this.powerUps = [];
-          this.setupPowerUps();
-
           this.score = 0;
           this.lastFrame = Date.now();
           this.gameLoop();
@@ -184,16 +168,6 @@ class Engine {
         }
     }
 
-    setupPowerUps() {
-        if (!this.powerUps) {
-            this.powerUps = [];
-        }
-
-        while (this.powerUps.filter(e => !!e).length < MAX_POWERUPS) {
-            this.powerUps();
-        }
-    }
-
     // This method finds a random spot where there is no enemy, and puts one in there
     addEnemy() {
         var enemySpots = GAME_WIDTH / ENEMY_WIDTH;
@@ -206,22 +180,7 @@ class Engine {
 
         this.enemies[enemySpot] = new Enemy(enemySpot * ENEMY_WIDTH);
     }
-
-    // This method finds a random spot where there is no enemy, and puts one in there
-    addPowerUp() {
-        var powerUpSpots = GAME_WIDTH / ENEMY_WIDTH;
-
-        var powerUpSpot;
-        // Keep looping until we find a free enemy spot at random
-        while (powerUpSpot===undefined || this.powerUp[powerUpSpot]) {
-            powerUpSpot = Math.floor(Math.random() * powerUpSpot);
-        }
-
-        this.powerUP[powerUpSpot] = new PowerUp(powerUpSpot * LIFE_WIDTH);
-    }
-
-
-        // Draw the canvas
+    // Draw the canvas
     loadGameBackground() {
         this.score = 0;
         this.lastFrame = Date.now();
@@ -232,7 +191,10 @@ class Engine {
         this.ctx.fillStyle = '#ffffff';
         this.ctx.fillText( 'CAN I HAZ BURGERS', (GAME_WIDTH / 2), 250);
         this.ctx.fillText('(press ENTER to play)', (GAME_WIDTH / 2), 280);
-        }
+        console.log('super');
+    }
+
+
 
     /*
     This is the core of the game engine. The `gameLoop` function gets called ~60 times per second
@@ -260,7 +222,6 @@ class Engine {
         this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
         this.enemies.forEach(enemy => enemy.render(this.ctx)); // draw the enemies
         this.player.render(this.ctx); // draw the player
-        this.powerUp.forEach(powerup => powerUp.render(this.ctx))
 
         // Check if any enemies should die
         this.enemies.forEach((enemy, enemyIdx) => {
@@ -320,7 +281,6 @@ class Engine {
     }
 
 }
-
 // This section will start the game
 var gameEngine = new Engine(document.getElementById('app'));
-gameEngine.loadGameBackground()
+  gameEngine.loadGameBackground();
