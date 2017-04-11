@@ -8,9 +8,6 @@ var ENEMY_WIDTH = 75;
 var ENEMY_HEIGHT = 156;
 var MAX_ENEMIES = 5;
 
-var LIFE_WIDTH = 75;
-var LIFE_HEIGHT = 64;
-
 var PLAYER_WIDTH = 75;
 var PLAYER_HEIGHT = 54;
 
@@ -30,7 +27,7 @@ var MOVE_DOWN = 'down';
 
 // Preload game images
 var images = {};
-['enemy.png', 'stars.png', 'player.png', 'heart.png'].forEach(imgName => {
+['enemy.png', 'stars.png', 'player.png'].forEach(imgName => {
     var img = document.createElement('img');
     img.src = 'images/' + imgName;
     images[imgName] = img;
@@ -180,6 +177,7 @@ class Engine {
 
         this.enemies[enemySpot] = new Enemy(enemySpot * ENEMY_WIDTH);
     }
+
     // Draw the canvas
     loadGameBackground() {
         this.score = 0;
@@ -216,11 +214,11 @@ class Engine {
         this.score += Math.round(timeDiff * .1) ;
 
         // Call update on all enemies
-        this.enemies.forEach(enemy => enemy.update(timeDiff));
+        this.enemies.forEach(enemy => enemy.update(timeDiff))
 
         // Draw everything!
         this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
-        this.enemies.forEach(enemy => enemy.render(this.ctx)); // draw the enemies
+        this.enemies.forEach(enemy => enemy.render(this.ctx)); // draw the enemie
         this.player.render(this.ctx); // draw the player
 
         // Check if any enemies should die
@@ -283,4 +281,4 @@ class Engine {
 }
 // This section will start the game
 var gameEngine = new Engine(document.getElementById('app'));
-  gameEngine.loadGameBackground();
+  requestAnimationFrame(()=>gameEngine.loadGameBackground());
