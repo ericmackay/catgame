@@ -27,6 +27,7 @@ var MOVE_DOWN = 'down';
 
 // Preload game images
 var images = {};
+
 ['enemy.png', 'stars.png', 'player.png'].forEach(imgName => {
     var img = document.createElement('img');
     img.src = 'images/' + imgName;
@@ -189,7 +190,7 @@ class Engine {
         this.ctx.fillText( 'CAN I HAZ BURGERS', (GAME_WIDTH / 2), 250);
         this.ctx.fillText('(press ENTER to play)', (GAME_WIDTH / 2), 280);
         console.log('super');
-        requestAnimationFrame(()=>this.loadGameStartScreen())
+        requestAnimationFrame(()=>this.loadGameBackground())
     }
 
 
