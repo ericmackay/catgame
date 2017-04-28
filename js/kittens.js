@@ -52,7 +52,6 @@ class Enemy extends Entity {
 
         // Each enemy should have a different speed
         this.speed = Math.random() / 2 + 0.25;
-
     }
 
     update(timeDiff) {
@@ -190,6 +189,7 @@ class Engine {
         this.ctx.fillText( 'CAN I HAZ BURGERS', (GAME_WIDTH / 2), 250);
         this.ctx.fillText('(press ENTER to play)', (GAME_WIDTH / 2), 280);
         console.log('super');
+        requestAnimationFrame(()=>this.loadGameStartScreen())
     }
 
 
@@ -218,7 +218,7 @@ class Engine {
 
         // Draw everything!
         this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
-        this.enemies.forEach(enemy => enemy.render(this.ctx)); // draw the enemie
+        this.enemies.forEach(enemy => enemy.render(this.ctx)); // draw the enemy
         this.player.render(this.ctx); // draw the player
 
         // Check if any enemies should die
