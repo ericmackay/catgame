@@ -28,7 +28,7 @@ var MOVE_DOWN = 'down';
 // Preload game images
 var images = {};
 
-['enemy.png', 'stars.png', 'player.png'].forEach(imgName => {
+['enemy.png', 'stars.jpg', 'player.png'].forEach(imgName => {
     var img = document.createElement('img');
     img.src = 'images/' + imgName;
     images[imgName] = img;
@@ -182,7 +182,7 @@ class Engine {
     loadGameBackground() {
         this.score = 0;
         this.lastFrame = Date.now();
-        this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
+        this.ctx.drawImage(images['stars.jpg'], 0, 0); // draw the star bg
         this.player.render(this.ctx); // draw the player
         this.ctx.textAlign = 'center';
         this.ctx.font = 'bold 18px Verdana' ;
@@ -220,7 +220,7 @@ class Engine {
         this.enemies.forEach(enemy => enemy.update(timeDiff))
 
         // Draw everything!
-        this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
+        this.ctx.drawImage(images['stars.jpg'], 0, 0); // draw the star bg
         this.enemies.forEach(enemy => enemy.render(this.ctx)); // draw the enemy
         this.player.render(this.ctx); // draw the player
 
